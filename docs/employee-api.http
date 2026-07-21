@@ -1,0 +1,61 @@
+@baseUrl = http://localhost:5000/api
+@employeeId = 1
+
+### Health check
+GET {{baseUrl}}/health
+Accept: application/json
+
+### List employees with pagination
+GET {{baseUrl}}/employees?page=1&pageSize=8
+Accept: application/json
+
+### Search active employees
+GET {{baseUrl}}/employees?search=finance&status=1&page=1&pageSize=8
+Accept: application/json
+
+### Get one employee
+GET {{baseUrl}}/employees/{{employeeId}}
+Accept: application/json
+
+### Create employee
+POST {{baseUrl}}/employees
+Content-Type: application/json
+Accept: application/json
+
+{
+  "employeeNumber": "EMP-011",
+  "firstName": "Liza",
+  "lastName": "Cruz",
+  "department": "Finance",
+  "position": "Finance Assistant",
+  "status": 1,
+  "joinDate": "2026-07-21"
+}
+
+### Update employee
+PUT {{baseUrl}}/employees/{{employeeId}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "employeeNumber": "EMP-001",
+  "firstName": "Juan",
+  "lastName": "Dela Cruz",
+  "department": "Information Technology",
+  "position": "Software Developer",
+  "status": 1,
+  "joinDate": "2026-07-21"
+}
+
+### Reactivate employee
+PATCH {{baseUrl}}/employees/{{employeeId}}/status
+Content-Type: application/json
+Accept: application/json
+
+{
+  "status": 1
+}
+
+### Deactivate employee using logical DELETE
+DELETE {{baseUrl}}/employees/{{employeeId}}
+Accept: application/json

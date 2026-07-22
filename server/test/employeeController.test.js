@@ -46,9 +46,9 @@ test('returns paginated employees and global summary', async () => {
   const database = {
     async query(text, values) {
       calls.push({text, values});
-      if (text.includes('COUNT(*)::INTEGER AS total FROM')) return {rows: [{total: 11}]};
-      if (text.includes('COUNT(DISTINCT emp_dep)')) {
-        return {rows: [{totalEmployees: 14, activeEmployees: 10, departments: 4}]};
+      if (text.includes('COUNT(*)::INTEGER AS total ')) return {rows: [{total: 11}]};
+      if (text.includes('"totalEmployees"')) {
+        return {rows: [{totalEmployees: 14, activeEmployees: 10, departments: 5}]};
       }
       return {rows: [{employeeId: '9', employeeNumber: 'EMP-009', status: 1}], rowCount: 1};
     },
@@ -62,14 +62,17 @@ test('returns paginated employees and global summary', async () => {
   assert.equal(response.payload.meta.total, 11);
   assert.equal(response.payload.meta.totalPages, 3);
   assert.equal(response.payload.summary.inactiveEmployees, 4);
+  assert.equal(response.payload.summary.departments, 5);
   assert.deepEqual(calls[1].values.slice(-2), [5, 5]);
+  assert.match(calls[1].text, /JOIN departments/);
 });
 
-test('creates an employee using normalized input', async () => {
-  let submittedValues;
+test('creates an employee using only the normalized position foreign key', async () => {
+  const calls = [];
   const controller = createEmployeeController({
     async query(text, values) {
-      submittedValues = values;
+      calls.push({text, values});
+      if (text.startsWith('SELECT 1 FROM positions')) return {rows: [{exists: 1}], rowCount: 1};
       return {rows: [{employeeId: '20', employeeNumber: values[0]}], rowCount: 1};
     },
   });
@@ -78,8 +81,8 @@ test('creates an employee using normalized input', async () => {
     employeeNumber: 'EMP-020',
     firstName: 'Lina',
     lastName: 'Garcia',
-    department: 'Finance',
-    position: 'Analyst',
+    departmentId: '3',
+    positionId: '5',
     status: 1,
     joinDate: '2026-07-21',
   };
@@ -87,7 +90,36 @@ test('creates an employee using normalized input', async () => {
   await controller.createEmployee({employeeInput}, response);
 
   assert.equal(response.statusCode, 201);
-  assert.deepEqual(submittedValues, ['EMP-020', 'Lina', 'Garcia', 'Finance', 'Analyst', 1, '2026-07-21']);
+  assert.deepEqual(calls[0].values, ['5', '3']);
+  assert.deepEqual(calls[1].values, ['EMP-020', 'Lina', 'Garcia', '5', 1, '2026-07-21']);
+  assert.doesNotMatch(calls[1].text, /department_id.*INSERT INTO employees/);
+});
+
+test('rejects a position that does not belong to the selected department', async () => {
+  let queryCount = 0;
+  const controller = createEmployeeController({
+    async query() {
+      queryCount += 1;
+      return {rows: [], rowCount: 0};
+    },
+  });
+  const response = createResponse();
+
+  await controller.createEmployee({
+    employeeInput: {
+      employeeNumber: 'EMP-020',
+      firstName: 'Lina',
+      lastName: 'Garcia',
+      departmentId: '2',
+      positionId: '5',
+      status: 1,
+      joinDate: '2026-07-21',
+    },
+  }, response);
+
+  assert.equal(response.statusCode, 400);
+  assert.equal(queryCount, 1);
+  assert.ok(response.payload.errors.positionId);
 });
 
 test('reactivates an employee with a numeric status', async () => {

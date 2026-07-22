@@ -3,6 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import { pool } from './config/database.js';
+import departmentRoutes from './routes/departmentRoutes.js';
 import employeeRoutes from './routes/employeeRoutes.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
@@ -19,6 +20,7 @@ app.get('/api/health', async (req, res) => {
   res.status(200).json({success: true, status: 'ok', service: 'pern-employee-api', timestamp: new Date().toISOString()});
 });
 
+app.use('/api/departments', departmentRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);

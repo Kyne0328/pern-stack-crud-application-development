@@ -15,6 +15,13 @@ export function errorHandler(error, req, res, next) {
       errors: {employeeNumber: 'Use a unique employee number.'},
     });
   }
+  if (error.code === '23503') {
+    return res.status(400).json({
+      success: false,
+      message: 'The selected department or position no longer exists.',
+      errors: {positionId: 'Select an available position.'},
+    });
+  }
   if (error.code === '23514' || error.code === '22001' || error.code === '22P02') {
     return res.status(400).json({success: false, message: 'The employee data violates a database rule.'});
   }

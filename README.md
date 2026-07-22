@@ -11,6 +11,7 @@ The simple CRUD scope is implemented:
 - Logically delete employees by deactivating them
 - Restore inactive employees
 - Display global employee summary counts
+- Select departments and positions through database-backed dropdowns
 - Validate data in React, Express, and PostgreSQL
 - Handle duplicate employee numbers and malformed requests
 - Display loading, empty, success, and error states
@@ -27,6 +28,21 @@ The simple CRUD scope is implemented:
 - Node’s built-in test runner
 
 ## Data conventions
+
+The database separates organizational reference data from employee records:
+
+```text
+departments
+    department_id → department_name
+
+positions
+    position_id → position_name, department_id
+
+employees
+    employee_id → employee_number, names, position_id, status, join date
+```
+
+An employee stores only `position_id`. The employee’s department is obtained through the selected position, so department data is not duplicated in the employee row. This removes the transitive dependency `employee → position → department` from the `employees` table.
 
 Employee status is stored as a constrained integer:
 
@@ -70,15 +86,18 @@ The root package uses npm workspaces and installs the client and server dependen
 
 ### 2. Create the database
 
+The schema changed from one employee table to a normalized three-table design. Because this project targets fresh installation and does not include migrations, recreate any database made with the earlier schema.
+
 Using `psql`:
 
 ```bash
+psql -U postgres -c "DROP DATABASE IF EXISTS pern_employee_crud;"
 psql -U postgres -c "CREATE DATABASE pern_employee_crud;"
 psql -U postgres -d pern_employee_crud -f database/schema.sql
 psql -U postgres -d pern_employee_crud -f database/seed.sql
 ```
 
-The seed file contains ten fictional demonstration records. They are not actual company employee data.
+The seed file creates five departments, ten positions, and ten fictional employee records.
 
 ### 3. Configure the API
 
@@ -158,7 +177,8 @@ npm run verify
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
 | `GET` | `/api/health` | Verify API and PostgreSQL connectivity |
-| `GET` | `/api/employees` | List employees with pagination |
+| `GET` | `/api/departments` | List departments with their available positions |
+| `GET` | `/api/employees` | List employees with joined department and position names |
 | `GET` | `/api/employees/:employeeId` | Read one employee |
 | `POST` | `/api/employees` | Create an employee |
 | `PUT` | `/api/employees/:employeeId` | Update an employee |
@@ -182,17 +202,21 @@ GET /api/employees?search=finance&status=1&page=1&pageSize=8
 
 ### Employee request body
 
+Call `GET /api/departments` first and use IDs from the selected dropdown options:
+
 ```json
 {
   "employeeNumber": "EMP-011",
   "firstName": "Liza",
   "lastName": "Cruz",
-  "department": "Finance",
-  "position": "Finance Assistant",
+  "departmentId": "3",
+  "positionId": "5",
   "status": 1,
   "joinDate": "2026-07-21"
 }
 ```
+
+The API validates that the position belongs to the selected department. Only `position_id` is stored in `employees`; `departmentId` is used to verify the dropdown selection.
 
 `docs/employee-api.http` contains executable examples for every endpoint.
 
@@ -202,20 +226,20 @@ GET /api/employees?search=finance&status=1&page=1&pageSize=8
 
 `DELETE /api/employees/:employeeId` sets `emp_status` to `0` instead of physically removing the row. Future attendance records will reference employees, so permanent deletion would break historical integrity.
 
-### Integer status
+### Normalized organization data
 
-Status is represented as `SMALLINT` with a PostgreSQL check constraint. The API accepts only numeric `1` and `0`, not text variants.
+Departments and positions are reference tables. Each position belongs to one department, and each employee references one position. The React department dropdown filters the position dropdown, preventing invalid combinations.
 
 ### Validation layers
 
-- React provides immediate form feedback.
+- React provides immediate form feedback and validates the selected relationship.
 - Express treats incoming data as untrusted and validates it again.
-- PostgreSQL constraints provide the final integrity layer.
+- PostgreSQL foreign keys and constraints provide the final integrity layer.
 
 ### Identifier handling
 
-`employee_id` is a PostgreSQL `BIGINT`. The API validates path identifiers as digit strings instead of converting them to JavaScript numbers, avoiding precision loss for large IDs.
+Primary and foreign keys use PostgreSQL `BIGINT`. The API transfers them as digit strings rather than converting them to JavaScript numbers, avoiding precision loss for large IDs.
 
 ## Known boundary
 
-This is a completed simple CRUD application, not yet a production HRIS. Authentication, authorization, audit logging, department reference tables, biometric integration, and DTR calculations belong to the next project phase.
+This is a completed simple CRUD application, not yet a production HRIS. Authentication, authorization, audit logging, biometric integration, and DTR calculations belong to the next project phase.

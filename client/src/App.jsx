@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   createEmployee,
   deactivateEmployee,
+  getDepartments,
   getEmployees,
   updateEmployee,
   updateEmployeeStatus,
@@ -17,6 +18,7 @@ const initialSummary = {totalEmployees: 0, activeEmployees: 0, inactiveEmployees
 
 export default function App() {
   const [employees, setEmployees] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [filters, setFilters] = useState({search: '', status: ''});
   const [appliedFilters, setAppliedFilters] = useState({search: '', status: ''});
   const [page, setPage] = useState(1);
@@ -25,11 +27,27 @@ export default function App() {
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [formOpen, setFormOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [referenceLoading, setReferenceLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [updatingId, setUpdatingId] = useState(null);
   const [notice, setNotice] = useState(null);
   const [loadError, setLoadError] = useState(null);
+  const [referenceError, setReferenceError] = useState(null);
   const [reloadToken, setReloadToken] = useState(0);
+
+  const loadDepartments = useCallback(async () => {
+    setReferenceLoading(true);
+    setReferenceError(null);
+
+    try {
+      const response = await getDepartments();
+      setDepartments(response.data);
+    } catch (error) {
+      setReferenceError(error.message);
+    } finally {
+      setReferenceLoading(false);
+    }
+  }, []);
 
   const loadEmployees = useCallback(async () => {
     setLoading(true);
@@ -52,6 +70,10 @@ export default function App() {
       setLoading(false);
     }
   }, [appliedFilters, page, reloadToken]);
+
+  useEffect(() => {
+    loadDepartments();
+  }, [loadDepartments]);
 
   useEffect(() => {
     loadEmployees();
@@ -165,15 +187,29 @@ export default function App() {
           <div>
             <p className="eyebrow">PERN stack CRUD application</p>
             <h1>Employee management</h1>
-            <p>Create, review, update, deactivate, and restore employee records through a PostgreSQL-backed Express API.</p>
+            <p>Create, review, update, deactivate, and restore employee records through a normalized PostgreSQL-backed Express API.</p>
           </div>
-          <button className="button button-primary" type="button" onClick={openCreateForm}>Add employee</button>
+          <button
+            className="button button-primary"
+            type="button"
+            onClick={openCreateForm}
+            disabled={referenceLoading || departments.length === 0}
+          >
+            Add employee
+          </button>
         </section>
 
         {notice && (
           <div className={`notice notice-${notice.type}`} role="status" aria-live="polite">
             <span>{notice.message}</span>
             <button type="button" onClick={() => setNotice(null)} aria-label="Dismiss notification">×</button>
+          </div>
+        )}
+
+        {referenceError && (
+          <div className="notice notice-error" role="alert">
+            <span>Department and position options could not be loaded: {referenceError}</span>
+            <button type="button" onClick={loadDepartments} aria-label="Retry loading departments">↻</button>
           </div>
         )}
 
@@ -187,6 +223,9 @@ export default function App() {
         {formOpen && (
           <EmployeeForm
             employee={editingEmployee}
+            departments={departments}
+            referenceLoading={referenceLoading}
+            referenceError={referenceError}
             saving={saving}
             onCancel={closeForm}
             onSubmit={saveEmployee}

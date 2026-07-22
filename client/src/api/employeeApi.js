@@ -41,6 +41,10 @@ async function request(path, options = {}) {
   }
 }
 
+export function getDepartments() {
+  return request('/departments');
+}
+
 export async function getEmployees(filters = {}) {
   const params = new URLSearchParams();
   if (filters.search) params.set('search', filters.search);

@@ -6,6 +6,12 @@ function cleanString(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+function normalizeReferenceId(value) {
+  if (typeof value === 'number' && Number.isSafeInteger(value) && value > 0) return String(value);
+  if (typeof value === 'string' && /^[1-9]\d*$/.test(value.trim())) return value.trim();
+  return '';
+}
+
 function isValidDate(value) {
   const match = DATE_PATTERN.exec(value);
   if (!match) return false;
@@ -35,8 +41,8 @@ export function validateEmployee(req, res, next) {
     employeeNumber: cleanString(body.employeeNumber).toUpperCase(),
     firstName: cleanString(body.firstName),
     lastName: cleanString(body.lastName),
-    department: cleanString(body.department),
-    position: cleanString(body.position),
+    departmentId: normalizeReferenceId(body.departmentId),
+    positionId: normalizeReferenceId(body.positionId),
     status: body.status === undefined ? EMPLOYEE_STATUS.ACTIVE : body.status,
     joinDate: cleanString(body.joinDate),
   };
@@ -51,11 +57,8 @@ export function validateEmployee(req, res, next) {
   if (!employee.lastName) errors.lastName = 'Last name is required.';
   else if (exceedsLength(employee.lastName, 100)) errors.lastName = 'Last name must not exceed 100 characters.';
 
-  if (!employee.department) errors.department = 'Department is required.';
-  else if (exceedsLength(employee.department, 100)) errors.department = 'Department must not exceed 100 characters.';
-
-  if (!employee.position) errors.position = 'Position is required.';
-  else if (exceedsLength(employee.position, 100)) errors.position = 'Position must not exceed 100 characters.';
+  if (!employee.departmentId) errors.departmentId = 'Select a valid department.';
+  if (!employee.positionId) errors.positionId = 'Select a valid position.';
 
   if (!isValidDate(employee.joinDate)) errors.joinDate = 'Join date must be a valid date in YYYY-MM-DD format.';
 

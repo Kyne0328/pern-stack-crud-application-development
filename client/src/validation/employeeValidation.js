@@ -21,19 +21,24 @@ function cleanString(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+function normalizeReferenceId(value) {
+  if (typeof value === 'number' && Number.isSafeInteger(value) && value > 0) return String(value);
+  return typeof value === 'string' ? value.trim() : '';
+}
+
 export function normalizeEmployeeInput(values) {
   return {
     employeeNumber: cleanString(values.employeeNumber).toUpperCase(),
     firstName: cleanString(values.firstName),
     lastName: cleanString(values.lastName),
-    department: cleanString(values.department),
-    position: cleanString(values.position),
+    departmentId: normalizeReferenceId(values.departmentId),
+    positionId: normalizeReferenceId(values.positionId),
     status: values.status,
     joinDate: cleanString(values.joinDate),
   };
 }
 
-export function validateEmployeeInput(values) {
+export function validateEmployeeInput(values, departments = []) {
   const data = normalizeEmployeeInput(values);
   const errors = {};
 
@@ -46,11 +51,16 @@ export function validateEmployeeInput(values) {
   if (!data.lastName) errors.lastName = 'Last name is required.';
   else if (data.lastName.length > 100) errors.lastName = 'Use 100 characters or fewer.';
 
-  if (!data.department) errors.department = 'Department is required.';
-  else if (data.department.length > 100) errors.department = 'Use 100 characters or fewer.';
+  if (!/^[1-9]\d*$/.test(data.departmentId)) errors.departmentId = 'Select a valid department.';
+  if (!/^[1-9]\d*$/.test(data.positionId)) errors.positionId = 'Select a valid position.';
 
-  if (!data.position) errors.position = 'Position is required.';
-  else if (data.position.length > 100) errors.position = 'Use 100 characters or fewer.';
+  const selectedDepartment = departments.find((department) => String(department.departmentId) === data.departmentId);
+  if (departments.length > 0 && !selectedDepartment) {
+    errors.departmentId = 'Select an available department.';
+  }
+  if (selectedDepartment && !selectedDepartment.positions.some((position) => String(position.positionId) === data.positionId)) {
+    errors.positionId = 'Select a position from this department.';
+  }
 
   if (!isValidDate(data.joinDate)) errors.joinDate = 'Enter a valid date in YYYY-MM-DD format.';
 

@@ -30,8 +30,8 @@ const validEmployee = {
   employeeNumber: ' emp-003 ',
   firstName: ' Ana ',
   lastName: ' Reyes ',
-  department: ' Finance ',
-  position: ' Analyst ',
+  departmentId: '3',
+  positionId: '5',
   status: EMPLOYEE_STATUS.ACTIVE,
   joinDate: '2026-07-21',
 };
@@ -41,7 +41,17 @@ test('accepts and normalizes a valid employee', () => {
 
   assert.equal(result.nextCalled, true);
   assert.equal(result.req.employeeInput.employeeNumber, 'EMP-003');
+  assert.equal(result.req.employeeInput.departmentId, '3');
+  assert.equal(result.req.employeeInput.positionId, '5');
   assert.equal(result.req.employeeInput.status, EMPLOYEE_STATUS.ACTIVE);
+});
+
+test('accepts numeric reference IDs and normalizes them to strings', () => {
+  const result = runMiddleware(validateEmployee, {...validEmployee, departmentId: 3, positionId: 5});
+
+  assert.equal(result.nextCalled, true);
+  assert.equal(result.req.employeeInput.departmentId, '3');
+  assert.equal(result.req.employeeInput.positionId, '5');
 });
 
 test('rejects a missing request body without throwing', () => {
@@ -59,6 +69,8 @@ test('rejects missing required employee fields', () => {
   assert.equal(result.statusCode, 400);
   assert.equal(result.payload.success, false);
   assert.ok(result.payload.errors.employeeNumber);
+  assert.ok(result.payload.errors.departmentId);
+  assert.ok(result.payload.errors.positionId);
   assert.ok(result.payload.errors.joinDate);
 });
 

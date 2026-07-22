@@ -1,6 +1,6 @@
-import {pool} from '../config/database.js';
+const {pool} = require('../config/database');
 
-export function groupDepartments(rows) {
+function groupDepartments(rows) {
   const departments = [];
   const departmentMap = new Map();
 
@@ -28,7 +28,7 @@ export function groupDepartments(rows) {
   return departments;
 }
 
-export async function listDepartments(req, res) {
+async function listDepartments(req, res) {
   const result = await pool.query(
     `SELECT
        d.department_id::TEXT AS "departmentId",
@@ -42,3 +42,5 @@ export async function listDepartments(req, res) {
 
   return res.status(200).json({success: true, data: groupDepartments(result.rows)});
 }
+
+module.exports = {groupDepartments, listDepartments};

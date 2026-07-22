@@ -1,7 +1,18 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
-import {EMPLOYEE_STATUS} from '../src/constants/employeeStatus.js';
-import {normalizeEmployeeInput, validateEmployeeInput} from '../src/validation/employeeValidation.js';
+const assert = require('node:assert/strict');
+const {before, test} = require('node:test');
+
+let EMPLOYEE_STATUS;
+let normalizeEmployeeInput;
+let validateEmployeeInput;
+
+before(async () => {
+  const statusModule = await import('../src/constants/employeeStatus.js');
+  const validationModule = await import('../src/validation/employeeValidation.js');
+
+  EMPLOYEE_STATUS = statusModule.EMPLOYEE_STATUS;
+  normalizeEmployeeInput = validationModule.normalizeEmployeeInput;
+  validateEmployeeInput = validationModule.validateEmployeeInput;
+});
 
 const departments = [
   {
@@ -17,7 +28,7 @@ const validEmployee = {
   lastName: ' Cruz ',
   departmentId: '3',
   positionId: '5',
-  status: EMPLOYEE_STATUS.ACTIVE,
+  status: 1,
   joinDate: '2026-07-21',
 };
 

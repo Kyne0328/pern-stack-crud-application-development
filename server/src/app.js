@@ -1,11 +1,11 @@
-import 'dotenv/config';
-import cors from 'cors';
-import express from 'express';
-import helmet from 'helmet';
-import { pool } from './config/database.js';
-import departmentRoutes from './routes/departmentRoutes.js';
-import employeeRoutes from './routes/employeeRoutes.js';
-import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+require('dotenv/config');
+const cors = require('cors');
+const express = require('express');
+const helmet = require('helmet');
+const {pool} = require('./config/database');
+const departmentRoutes = require('./routes/departmentRoutes');
+const employeeRoutes = require('./routes/employeeRoutes');
+const {errorHandler, notFoundHandler} = require('./middleware/errorHandler');
 
 const app = express();
 const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
@@ -25,4 +25,4 @@ app.use('/api/employees', employeeRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-export default app;
+module.exports = app;

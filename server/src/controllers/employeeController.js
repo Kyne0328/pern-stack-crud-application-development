@@ -1,12 +1,12 @@
-import {pool} from '../config/database.js';
-import {EMPLOYEE_STATUS} from '../constants/employeeStatus.js';
+const {pool} = require('../config/database');
+const {EMPLOYEE_STATUS} = require('../constants/employeeStatus');
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 10;
 const MAX_PAGE_SIZE = 50;
 const MAX_SEARCH_LENGTH = 100;
 
-export function parseEmployeeListQuery(query = {}) {
+function parseEmployeeListQuery(query = {}) {
   const search = typeof query.search === 'string' ? query.search.trim() : '';
   const page = query.page === undefined || query.page === '' ? DEFAULT_PAGE : Number(query.page);
   const pageSize = query.pageSize === undefined || query.pageSize === ''
@@ -38,7 +38,7 @@ function isValidEmployeeId(employeeId) {
   return typeof employeeId === 'string' && /^[1-9]\d*$/.test(employeeId);
 }
 
-export async function listEmployees(req, res) {
+async function listEmployees(req, res) {
   const filters = parseEmployeeListQuery(req.query);
   if (filters.error) {
     return res.status(400).json({success: false, message: filters.error});
@@ -121,7 +121,7 @@ export async function listEmployees(req, res) {
   });
 }
 
-export async function createEmployee(req, res) {
+async function createEmployee(req, res) {
   const {employeeNumber, firstName, lastName, positionId, status, joinDate} = req.employeeInput;
 
   await pool.query(
@@ -140,7 +140,7 @@ export async function createEmployee(req, res) {
   return res.status(201).json({success: true, message: 'Employee created successfully.'});
 }
 
-export async function updateEmployee(req, res) {
+async function updateEmployee(req, res) {
   const {employeeId} = req.params;
   if (!isValidEmployeeId(employeeId)) {
     return res.status(400).json({success: false, message: 'Invalid employee ID.'});
@@ -167,7 +167,7 @@ export async function updateEmployee(req, res) {
   return res.status(200).json({success: true, message: 'Employee updated successfully.'});
 }
 
-export async function deleteEmployee(req, res) {
+async function deleteEmployee(req, res) {
   const {employeeId} = req.params;
   if (!isValidEmployeeId(employeeId)) {
     return res.status(400).json({success: false, message: 'Invalid employee ID.'});
@@ -184,3 +184,11 @@ export async function deleteEmployee(req, res) {
 
   return res.status(200).json({success: true, message: 'Employee deleted successfully.'});
 }
+
+module.exports = {
+  parseEmployeeListQuery,
+  listEmployees,
+  createEmployee,
+  updateEmployee,
+  deleteEmployee,
+};

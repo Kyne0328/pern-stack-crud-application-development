@@ -1,4 +1,4 @@
-import {EMPLOYEE_STATUS, EMPLOYEE_STATUS_VALUES} from '../constants/employeeStatus.js';
+const {EMPLOYEE_STATUS, EMPLOYEE_STATUS_VALUES} = require('../constants/employeeStatus');
 
 const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
@@ -27,7 +27,7 @@ function isValidDate(value) {
     && date.getUTCDate() === day;
 }
 
-export function validateEmployee(req, res, next) {
+function validateEmployee(req, res, next) {
   const body = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
   const employee = {
     employeeNumber: cleanString(body.employeeNumber).toUpperCase(),
@@ -67,3 +67,5 @@ export function validateEmployee(req, res, next) {
   req.employeeInput = employee;
   return next();
 }
+
+module.exports = {validateEmployee};

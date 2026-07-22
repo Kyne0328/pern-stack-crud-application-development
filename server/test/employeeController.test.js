@@ -1,8 +1,8 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
+const assert = require('node:assert/strict');
+const test = require('node:test');
 
 process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://test:test@localhost:5432/test';
-const {parseEmployeeListQuery} = await import('../src/controllers/employeeController.js');
+const {parseEmployeeListQuery} = require('../src/controllers/employeeController');
 
 test('uses simple list defaults', () => {
   assert.deepEqual(parseEmployeeListQuery(), {

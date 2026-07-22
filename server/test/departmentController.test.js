@@ -1,8 +1,8 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
+const assert = require('node:assert/strict');
+const test = require('node:test');
 
 process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://test:test@localhost:5432/test';
-const {groupDepartments} = await import('../src/controllers/departmentController.js');
+const {groupDepartments} = require('../src/controllers/departmentController');
 
 test('groups positions under their departments', () => {
   const result = groupDepartments([

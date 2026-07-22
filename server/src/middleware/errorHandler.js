@@ -1,8 +1,8 @@
-export function notFoundHandler(req, res) {
+function notFoundHandler(req, res) {
   res.status(404).json({success: false, message: `Route not found: ${req.method} ${req.originalUrl}`});
 }
 
-export function errorHandler(error, req, res, next) {
+function errorHandler(error, req, res, next) {
   if (res.headersSent) return next(error);
 
   if (error.type === 'entity.parse.failed') {
@@ -32,3 +32,5 @@ export function errorHandler(error, req, res, next) {
   console.error(error);
   return res.status(500).json({success: false, message: 'An unexpected server error occurred.'});
 }
+
+module.exports = {notFoundHandler, errorHandler};

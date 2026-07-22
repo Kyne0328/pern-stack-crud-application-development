@@ -1,7 +1,7 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
-import {EMPLOYEE_STATUS} from '../src/constants/employeeStatus.js';
-import {validateEmployee} from '../src/middleware/validateEmployee.js';
+const assert = require('node:assert/strict');
+const test = require('node:test');
+const {EMPLOYEE_STATUS} = require('../src/constants/employeeStatus');
+const {validateEmployee} = require('../src/middleware/validateEmployee');
 
 function runMiddleware(body) {
   let nextCalled = false;

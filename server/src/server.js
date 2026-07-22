@@ -1,6 +1,6 @@
-import 'dotenv/config';
-import app from './app.js';
-import { pool } from './config/database.js';
+require('dotenv/config');
+const app = require('./app');
+const {pool} = require('./config/database');
 
 const port = Number(process.env.PORT) || 5000;
 const server = app.listen(port, () => console.log(`Employee API listening on http://localhost:${port}`));

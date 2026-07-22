@@ -177,20 +177,10 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <header className="topbar">
-        <div className="brand-mark" aria-hidden="true">H</div>
-        <div>
-          <strong>HRIS–DTR</strong>
-          <span>Employee Management</span>
-        </div>
-      </header>
-
       <main className="page">
         <section className="page-header">
           <div>
-            <p className="eyebrow">PERN stack CRUD application</p>
             <h1>Employee management</h1>
-            <p>Create, review, update, and permanently delete employee records through a PostgreSQL-backed Express API.</p>
           </div>
           <button
             className="button button-primary"
@@ -238,7 +228,6 @@ export default function App() {
         <section className="panel">
           <div className="panel-heading list-heading">
             <div>
-              <p className="eyebrow">Employee directory</p>
               <h2>{meta.total} matching record{meta.total === 1 ? '' : 's'}</h2>
             </div>
             <form className="filters" onSubmit={applyFilters}>

@@ -18,7 +18,7 @@ A simple PERN CRUD application for managing employees.
 - React with Vite
 - Axios for frontend API requests
 - Node.js/Express backend using CommonJS (`require` and `module.exports`)
-- React source remains ES modules because Vite compiles browser modules; Vite configuration and Node tests use CommonJS wrappers
+- The entire client workspace uses ES modules because Vite compiles the frontend
 
 ## Database design
 

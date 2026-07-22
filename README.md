@@ -46,7 +46,7 @@ Employee numbers are normalized to uppercase and enforced as case-insensitively 
 ```text
 .
 ├── client/                         React application and client tests
-├── database/                       Schema, migration, and demonstration seed data
+├── database/                       schema and demonstration seed data
 ├── docs/
 │   ├── employee-api.http           Ready-to-run API requests
 │   └── supervisor-demo.md          Supervisor demonstration sequence
@@ -84,12 +84,6 @@ psql -U postgres -d pern_employee_crud -f database/seed.sql
 ```
 
 The seed file contains ten fictional demonstration records. They are not actual company employee data.
-
-If the previous text-based status schema is already installed, run:
-
-```bash
-psql -U postgres -d pern_employee_crud -f database/migrations/001_employee_status_smallint.sql
-```
 
 ### 3. Configure the API
 

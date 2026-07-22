@@ -5,16 +5,12 @@
 GET {{baseUrl}}/health
 Accept: application/json
 
-### List departments and positions for the dropdowns
+### List departments and positions
 GET {{baseUrl}}/departments
 Accept: application/json
 
-### List employees
-GET {{baseUrl}}/employees?page=1&pageSize=10
-Accept: application/json
-
-### Search active employees
-GET {{baseUrl}}/employees?search=finance&status=1&page=1&pageSize=10
+### List all employees
+GET {{baseUrl}}/employees
 Accept: application/json
 
 ### Create employee
@@ -45,6 +41,6 @@ Accept: application/json
   "joinDate": "2026-07-21"
 }
 
-### Permanently delete employee
+### Delete employee
 DELETE {{baseUrl}}/employees/{{employeeId}}
 Accept: application/json

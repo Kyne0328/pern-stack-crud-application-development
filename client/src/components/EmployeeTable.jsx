@@ -18,7 +18,7 @@ export default function EmployeeTable({employees, loading, deletingId, onEdit, o
     return (
       <div className="empty-state">
         <h3>No employees found</h3>
-        <p>Adjust the filters or create a new employee record.</p>
+        <p>Create an employee record to get started.</p>
       </div>
     );
   }

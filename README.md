@@ -1,28 +1,24 @@
 # PERN Employee Management CRUD
 
-A simple PERN CRUD application for managing employees.
+A small employee CRUD application designed to be easy to study and explain.
 
 ## Features
 
-- Create employees
-- List, search, filter, and paginate employees
-- Update employee information and status
-- Permanently delete employees
-- Select departments and positions from database-backed dropdowns
-- Display employee and department summary counts
+- List all employees
+- Create an employee
+- Edit an employee
+- Delete an employee
+- Select a department and position
+- Validate employee form data
 
 ## Stack
 
-- PostgreSQL
-- Express
-- React with Vite
-- Axios for frontend API requests
-- Node.js/Express backend using CommonJS (`require` and `module.exports`)
-- The entire client workspace uses ES modules because Vite compiles the frontend
+- PostgreSQL database
+- Express and Node.js backend using CommonJS
+- React frontend using ES modules and Vite
+- Axios for API requests
 
-## Database design
-
-The database remains normalized to 3NF:
+## Database
 
 ```text
 departments
@@ -44,69 +40,31 @@ employees
     emp_join_date
 ```
 
-Employees store only `position_id`. The related department is obtained through the position.
+An employee stores `position_id`. The employee's department is found through the selected position.
 
-## Setup
+## Application flow
 
-### 1. Install dependencies
-
-```bash
-npm install
+```text
+React component
+  → Axios API function
+  → Express route
+  → validation middleware
+  → controller
+  → PostgreSQL
+  → JSON response
+  → React updates the page
 ```
-
-### 2. Create a fresh database
-
-The simplified schema removes the old timestamp trigger and uses permanent deletion. Recreate a database that used the previous schema:
-
-```bash
-psql -U postgres -c "DROP DATABASE IF EXISTS pern_employee_crud;"
-psql -U postgres -c "CREATE DATABASE pern_employee_crud;"
-psql -U postgres -d pern_employee_crud -f database/schema.sql
-psql -U postgres -d pern_employee_crud -f database/seed.sql
-```
-
-### 3. Configure the server
-
-Windows Command Prompt:
-
-```bat
-copy server\env.example server\.env
-```
-
-macOS, Linux, or Git Bash:
-
-```bash
-cp server/env.example server/.env
-```
-
-Update `server/.env` with your PostgreSQL credentials.
-
-### 4. Run the application
-
-First terminal:
-
-```bash
-npm run dev:server
-```
-
-Second terminal:
-
-```bash
-npm run dev:client
-```
-
-Open `http://localhost:5173`.
 
 ## API
 
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
-| `GET` | `/api/health` | Check the API and database connection |
-| `GET` | `/api/departments` | Load department and position dropdown data |
-| `GET` | `/api/employees` | List, search, filter, and paginate employees |
+| `GET` | `/api/health` | Check the API and database |
+| `GET` | `/api/departments` | Get departments and positions |
+| `GET` | `/api/employees` | Get all employees |
 | `POST` | `/api/employees` | Create an employee |
 | `PUT` | `/api/employees/:employeeId` | Update an employee |
-| `DELETE` | `/api/employees/:employeeId` | Permanently delete an employee |
+| `DELETE` | `/api/employees/:employeeId` | Delete an employee |
 
 Employee request body:
 
@@ -121,37 +79,45 @@ Employee request body:
 }
 ```
 
-The department dropdown filters the position dropdown in React. The backend only needs `positionId` because each position already belongs to one department.
+## Setup
 
-## Backend structure
+Install dependencies:
 
-```text
-route
-  ↓
-validation middleware
-  ↓
-controller
-  ↓
-PostgreSQL query
-  ↓
-JSON response
+```bash
+npm install
 ```
 
-The employee controller directly imports the PostgreSQL pool and exposes four operations:
+Create the database:
 
-```text
-POST   /employees      → INSERT
-GET    /employees      → SELECT
-PUT    /employees/:id  → UPDATE
-DELETE /employees/:id  → DELETE
+```bash
+psql -U postgres -c "CREATE DATABASE pern_employee_crud;"
+psql -U postgres -d pern_employee_crud -f database/schema.sql
+psql -U postgres -d pern_employee_crud -f database/seed.sql
 ```
+
+Create the server environment file:
+
+```bat
+copy server\env.example server\.env
+```
+
+Start the backend:
+
+```bash
+npm run dev:server
+```
+
+Start the frontend in another terminal:
+
+```bash
+npm run dev:client
+```
+
+Open `http://localhost:5173`.
 
 ## Validation
 
 ```bash
 npm test
 npm run build
-npm run verify
 ```
-
-`DELETE /api/employees/:employeeId` permanently removes the employee row. This behavior is appropriate for this sample CRUD application but would usually be reconsidered after attendance records are added.

@@ -9,14 +9,6 @@ function errorHandler(error, req, res, next) {
     return res.status(400).json({success: false, message: 'Request body must contain valid JSON.'});
   }
 
-  if (error.code === '23505') {
-    return res.status(409).json({
-      success: false,
-      message: 'An employee with that employee number already exists.',
-      errors: {employeeNumber: 'Use a unique employee number.'},
-    });
-  }
-
   if (error.code === '23503') {
     return res.status(400).json({
       success: false,

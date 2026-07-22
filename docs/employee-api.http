@@ -14,12 +14,12 @@ GET {{baseUrl}}/employees
 Accept: application/json
 
 ### Create employee
+### PostgreSQL generates employeeId automatically
 POST {{baseUrl}}/employees
 Content-Type: application/json
 Accept: application/json
 
 {
-  "employeeNumber": "EMP-011",
   "firstName": "Liza",
   "lastName": "Cruz",
   "positionId": "5",
@@ -27,13 +27,12 @@ Accept: application/json
   "joinDate": "2026-07-21"
 }
 
-### Update employee
+### Update employee using employeeId in the URL
 PUT {{baseUrl}}/employees/{{employeeId}}
 Content-Type: application/json
 Accept: application/json
 
 {
-  "employeeNumber": "EMP-001",
   "firstName": "Juan",
   "lastName": "Dela Cruz",
   "positionId": "1",
@@ -41,6 +40,6 @@ Accept: application/json
   "joinDate": "2026-07-21"
 }
 
-### Delete employee
+### Delete employee using employeeId in the URL
 DELETE {{baseUrl}}/employees/{{employeeId}}
 Accept: application/json

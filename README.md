@@ -8,6 +8,7 @@ A small employee CRUD application designed to be easy to study and explain.
 - Create an employee
 - Edit an employee
 - Delete an employee
+- Use an automatically generated employee ID
 - Select a department and position
 - Validate employee form data
 
@@ -31,8 +32,7 @@ positions
     position_name
 
 employees
-    employee_id
-    employee_number
+    employee_id (generated automatically)
     first_name
     last_name
     position_id → positions.position_id
@@ -40,7 +40,7 @@ employees
     emp_join_date
 ```
 
-An employee stores `position_id`. The employee's department is found through the selected position.
+The user does not type an employee ID. PostgreSQL generates `employee_id` when an employee is created. The API returns that ID, and the frontend uses it when editing or deleting the employee.
 
 ## Application flow
 
@@ -62,21 +62,30 @@ React component
 | `GET` | `/api/health` | Check the API and database |
 | `GET` | `/api/departments` | Get departments and positions |
 | `GET` | `/api/employees` | Get all employees |
-| `POST` | `/api/employees` | Create an employee |
-| `PUT` | `/api/employees/:employeeId` | Update an employee |
-| `DELETE` | `/api/employees/:employeeId` | Delete an employee |
+| `POST` | `/api/employees` | Create an employee and generate an ID |
+| `PUT` | `/api/employees/:employeeId` | Update an employee using the ID |
+| `DELETE` | `/api/employees/:employeeId` | Delete an employee using the ID |
 
 Employee request body:
 
 ```json
 {
-  "employeeNumber": "EMP-011",
   "firstName": "Liza",
   "lastName": "Cruz",
   "positionId": "5",
   "status": 1,
   "joinDate": "2026-07-21"
 }
+```
+
+The request body does not include `employeeId` because PostgreSQL generates it during creation. For update and delete requests, the ID is placed in the URL.
+
+## Database update
+
+For a new database, run `schema.sql` normally. For an existing database that still has `employee_number`, run:
+
+```bash
+psql -U postgres -d pern_employee_crud -f database/migrate-remove-employee-number.sql
 ```
 
 ## Setup
@@ -87,7 +96,7 @@ Install dependencies:
 npm install
 ```
 
-Create the database:
+Create a new database:
 
 ```bash
 psql -U postgres -c "CREATE DATABASE pern_employee_crud;"

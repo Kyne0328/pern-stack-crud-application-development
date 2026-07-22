@@ -12,7 +12,6 @@ const departments = [
 ];
 
 const validEmployee = {
-  employeeNumber: ' emp-100 ',
   firstName: ' Liza ',
   lastName: ' Cruz ',
   departmentId: '3',
@@ -24,7 +23,8 @@ const validEmployee = {
 test('normalizes form values', () => {
   const result = normalizeEmployeeInput({...validEmployee, departmentId: 3, positionId: 5});
 
-  assert.equal(result.employeeNumber, 'EMP-100');
+  assert.equal(result.firstName, 'Liza');
+  assert.equal(result.lastName, 'Cruz');
   assert.equal(result.departmentId, '3');
   assert.equal(result.positionId, '5');
 });
@@ -34,7 +34,6 @@ test('returns only backend fields after valid dropdown selection', () => {
 
   assert.equal(result.isValid, true);
   assert.deepEqual(result.data, {
-    employeeNumber: 'EMP-100',
     firstName: 'Liza',
     lastName: 'Cruz',
     positionId: '5',
@@ -42,6 +41,7 @@ test('returns only backend fields after valid dropdown selection', () => {
     joinDate: '2026-07-21',
   });
   assert.equal('departmentId' in result.data, false);
+  assert.equal('employeeId' in result.data, false);
 });
 
 test('rejects missing fields and mismatched positions', () => {
@@ -49,6 +49,8 @@ test('rejects missing fields and mismatched positions', () => {
   const mismatched = validateEmployeeInput({...validEmployee, positionId: '99'}, departments);
 
   assert.equal(missing.isValid, false);
+  assert.ok(missing.errors.firstName);
+  assert.ok(missing.errors.lastName);
   assert.ok(missing.errors.departmentId);
   assert.ok(missing.errors.positionId);
   assert.ok(mismatched.errors.positionId);

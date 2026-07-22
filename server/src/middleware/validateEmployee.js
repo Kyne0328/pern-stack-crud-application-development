@@ -30,7 +30,6 @@ function isValidDate(value) {
 function validateEmployee(req, res, next) {
   const body = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
   const employee = {
-    employeeNumber: cleanString(body.employeeNumber).toUpperCase(),
     firstName: cleanString(body.firstName),
     lastName: cleanString(body.lastName),
     positionId: normalizePositionId(body.positionId),
@@ -39,9 +38,6 @@ function validateEmployee(req, res, next) {
   };
 
   const errors = {};
-
-  if (!employee.employeeNumber) errors.employeeNumber = 'Employee number is required.';
-  else if (employee.employeeNumber.length > 30) errors.employeeNumber = 'Use 30 characters or fewer.';
 
   if (!employee.firstName) errors.firstName = 'First name is required.';
   else if (employee.firstName.length > 100) errors.firstName = 'Use 100 characters or fewer.';

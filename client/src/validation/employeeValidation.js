@@ -28,7 +28,6 @@ function normalizeReferenceId(value) {
 
 export function normalizeEmployeeInput(values) {
   return {
-    employeeNumber: cleanString(values.employeeNumber).toUpperCase(),
     firstName: cleanString(values.firstName),
     lastName: cleanString(values.lastName),
     departmentId: normalizeReferenceId(values.departmentId),
@@ -41,9 +40,6 @@ export function normalizeEmployeeInput(values) {
 export function validateEmployeeInput(values, departments = []) {
   const normalized = normalizeEmployeeInput(values);
   const errors = {};
-
-  if (!normalized.employeeNumber) errors.employeeNumber = 'Employee number is required.';
-  else if (normalized.employeeNumber.length > 30) errors.employeeNumber = 'Use 30 characters or fewer.';
 
   if (!normalized.firstName) errors.firstName = 'First name is required.';
   else if (normalized.firstName.length > 100) errors.firstName = 'Use 100 characters or fewer.';
@@ -74,7 +70,6 @@ export function validateEmployeeInput(values, departments = []) {
   }
 
   const data = {
-    employeeNumber: normalized.employeeNumber,
     firstName: normalized.firstName,
     lastName: normalized.lastName,
     positionId: normalized.positionId,

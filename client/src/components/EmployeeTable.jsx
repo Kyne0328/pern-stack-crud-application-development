@@ -29,6 +29,7 @@ export default function EmployeeTable({employees, loading, deletingId, onEdit, o
         <caption className="sr-only">Employee records and available actions</caption>
         <thead>
           <tr>
+            <th>ID</th>
             <th>Employee</th>
             <th>Department</th>
             <th>Position</th>
@@ -44,10 +45,8 @@ export default function EmployeeTable({employees, loading, deletingId, onEdit, o
 
             return (
               <tr key={employee.employeeId}>
-                <td>
-                  <strong>{employee.firstName} {employee.lastName}</strong>
-                  <span className="secondary-text">{employee.employeeNumber}</span>
-                </td>
+                <td>{employee.employeeId}</td>
+                <td><strong>{employee.firstName} {employee.lastName}</strong></td>
                 <td>{employee.department}</td>
                 <td>{employee.position}</td>
                 <td>{formatDate(employee.joinDate)}</td>
@@ -62,7 +61,7 @@ export default function EmployeeTable({employees, loading, deletingId, onEdit, o
                       type="button"
                       onClick={() => onDelete(employee)}
                       disabled={isDeleting}
-                      aria-label={`Delete ${employee.firstName} ${employee.lastName}`}
+                      aria-label={`Delete employee ID ${employee.employeeId}`}
                     >
                       {isDeleting ? 'Deleting…' : 'Delete'}
                     </button>

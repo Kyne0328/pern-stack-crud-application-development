@@ -27,7 +27,6 @@ function runMiddleware(body) {
 }
 
 const validEmployee = {
-  employeeNumber: ' emp-003 ',
   firstName: ' Ana ',
   lastName: ' Reyes ',
   positionId: '5',
@@ -40,7 +39,6 @@ test('accepts and normalizes a valid employee', () => {
 
   assert.equal(result.nextCalled, true);
   assert.deepEqual(result.req.employeeInput, {
-    employeeNumber: 'EMP-003',
     firstName: 'Ana',
     lastName: 'Reyes',
     positionId: '5',
@@ -54,7 +52,8 @@ test('rejects missing required fields', () => {
 
   assert.equal(result.nextCalled, false);
   assert.equal(result.statusCode, 400);
-  assert.ok(result.payload.errors.employeeNumber);
+  assert.ok(result.payload.errors.firstName);
+  assert.ok(result.payload.errors.lastName);
   assert.ok(result.payload.errors.positionId);
   assert.ok(result.payload.errors.joinDate);
 });

@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
-import { EMPLOYEE_STATUS, EMPLOYEE_STATUS_OPTIONS } from '../constants/employeeStatus.js';
-import { validateEmployeeInput } from '../validation/employeeValidation.js';
+import {useEffect, useMemo, useState} from 'react';
+import {EMPLOYEE_STATUS, EMPLOYEE_STATUS_OPTIONS} from '../constants/employeeStatus.js';
+import {validateEmployeeInput} from '../validation/employeeValidation.js';
 
 function getLocalDate() {
   const now = new Date();
@@ -12,7 +12,6 @@ function getLocalDate() {
 
 function createEmptyEmployee() {
   return {
-    employeeNumber: '',
     firstName: '',
     lastName: '',
     departmentId: '',
@@ -23,9 +22,8 @@ function createEmptyEmployee() {
 }
 
 const textFields = [
-  {name: 'employeeNumber', label: 'Employee number', type: 'text', maxLength: 30, autoComplete: 'off'},
-  {name: 'firstName', label: 'First name', type: 'text', maxLength: 100, autoComplete: 'given-name'},
-  {name: 'lastName', label: 'Last name', type: 'text', maxLength: 100, autoComplete: 'family-name'},
+  {name: 'firstName', label: 'First name', maxLength: 100, autoComplete: 'given-name'},
+  {name: 'lastName', label: 'Last name', maxLength: 100, autoComplete: 'family-name'},
 ];
 
 export default function EmployeeForm({
@@ -42,7 +40,6 @@ export default function EmployeeForm({
 
   useEffect(() => {
     setValues(employee ? {
-      employeeNumber: employee.employeeNumber,
       firstName: employee.firstName,
       lastName: employee.lastName,
       departmentId: String(employee.departmentId),
@@ -68,9 +65,7 @@ export default function EmployeeForm({
       return;
     }
 
-    let normalizedValue = name === 'status' ? Number(value) : value;
-    if (name === 'employeeNumber') normalizedValue = value.toUpperCase();
-
+    const normalizedValue = name === 'status' ? Number(value) : value;
     setValues((current) => ({...current, [name]: normalizedValue}));
     setErrors((current) => ({...current, [name]: undefined}));
   }
@@ -96,7 +91,7 @@ export default function EmployeeForm({
       <div className="panel-heading">
         <div>
           <p className="eyebrow">Employee record</p>
-          <h2 id="employee-form-heading">{employee ? 'Edit employee' : 'Add employee'}</h2>
+          <h2 id="employee-form-heading">{employee ? `Edit employee ID ${employee.employeeId}` : 'Add employee'}</h2>
         </div>
         <button className="icon-button" type="button" onClick={onCancel} disabled={saving} aria-label="Close employee form">×</button>
       </div>
@@ -112,7 +107,7 @@ export default function EmployeeForm({
                 <span>{field.label}</span>
                 <input
                   name={field.name}
-                  type={field.type}
+                  type="text"
                   value={values[field.name]}
                   onChange={handleChange}
                   maxLength={field.maxLength}

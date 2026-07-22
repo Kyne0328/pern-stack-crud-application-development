@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS positions (
 
 CREATE TABLE IF NOT EXISTS employees (
     employee_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    employee_number VARCHAR(30) NOT NULL UNIQUE,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     position_id BIGINT NOT NULL REFERENCES positions(position_id),

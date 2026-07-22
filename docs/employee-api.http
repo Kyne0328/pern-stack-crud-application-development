@@ -5,24 +5,19 @@
 GET {{baseUrl}}/health
 Accept: application/json
 
-### List departments and their positions
+### List departments and positions for the dropdowns
 GET {{baseUrl}}/departments
 Accept: application/json
 
-### List employees with pagination
-GET {{baseUrl}}/employees?page=1&pageSize=8
+### List employees
+GET {{baseUrl}}/employees?page=1&pageSize=10
 Accept: application/json
 
 ### Search active employees
-GET {{baseUrl}}/employees?search=finance&status=1&page=1&pageSize=8
-Accept: application/json
-
-### Get one employee
-GET {{baseUrl}}/employees/{{employeeId}}
+GET {{baseUrl}}/employees?search=finance&status=1&page=1&pageSize=10
 Accept: application/json
 
 ### Create employee
-# Retrieve departmentId and positionId from GET /departments first.
 POST {{baseUrl}}/employees
 Content-Type: application/json
 Accept: application/json
@@ -31,7 +26,6 @@ Accept: application/json
   "employeeNumber": "EMP-011",
   "firstName": "Liza",
   "lastName": "Cruz",
-  "departmentId": "3",
   "positionId": "5",
   "status": 1,
   "joinDate": "2026-07-21"
@@ -46,21 +40,11 @@ Accept: application/json
   "employeeNumber": "EMP-001",
   "firstName": "Juan",
   "lastName": "Dela Cruz",
-  "departmentId": "1",
   "positionId": "1",
   "status": 1,
   "joinDate": "2026-07-21"
 }
 
-### Reactivate employee
-PATCH {{baseUrl}}/employees/{{employeeId}}/status
-Content-Type: application/json
-Accept: application/json
-
-{
-  "status": 1
-}
-
-### Deactivate employee using logical DELETE
+### Permanently delete employee
 DELETE {{baseUrl}}/employees/{{employeeId}}
 Accept: application/json

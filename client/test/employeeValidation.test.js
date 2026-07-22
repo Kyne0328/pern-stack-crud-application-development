@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { EMPLOYEE_STATUS } from '../src/constants/employeeStatus.js';
-import { normalizeEmployeeInput, validateEmployeeInput } from '../src/validation/employeeValidation.js';
+import {EMPLOYEE_STATUS} from '../src/constants/employeeStatus.js';
+import {normalizeEmployeeInput, validateEmployeeInput} from '../src/validation/employeeValidation.js';
 
 const departments = [
   {
@@ -21,37 +21,37 @@ const validEmployee = {
   joinDate: '2026-07-21',
 };
 
-test('normalizes employee text and reference IDs before submission', () => {
+test('normalizes form values', () => {
   const result = normalizeEmployeeInput({...validEmployee, departmentId: 3, positionId: 5});
 
   assert.equal(result.employeeNumber, 'EMP-100');
-  assert.equal(result.firstName, 'Liza');
   assert.equal(result.departmentId, '3');
   assert.equal(result.positionId, '5');
 });
 
-test('accepts a complete valid employee', () => {
+test('returns only backend fields after valid dropdown selection', () => {
   const result = validateEmployeeInput(validEmployee, departments);
 
   assert.equal(result.isValid, true);
-  assert.deepEqual(result.errors, {});
+  assert.deepEqual(result.data, {
+    employeeNumber: 'EMP-100',
+    firstName: 'Liza',
+    lastName: 'Cruz',
+    positionId: '5',
+    status: EMPLOYEE_STATUS.ACTIVE,
+    joinDate: '2026-07-21',
+  });
+  assert.equal('departmentId' in result.data, false);
 });
 
-test('rejects missing required fields', () => {
-  const result = validateEmployeeInput({status: EMPLOYEE_STATUS.ACTIVE}, departments);
+test('rejects missing fields and mismatched positions', () => {
+  const missing = validateEmployeeInput({status: EMPLOYEE_STATUS.ACTIVE}, departments);
+  const mismatched = validateEmployeeInput({...validEmployee, positionId: '99'}, departments);
 
-  assert.equal(result.isValid, false);
-  assert.ok(result.errors.employeeNumber);
-  assert.ok(result.errors.departmentId);
-  assert.ok(result.errors.positionId);
-  assert.ok(result.errors.joinDate);
-});
-
-test('rejects a position from another department', () => {
-  const result = validateEmployeeInput({...validEmployee, positionId: '99'}, departments);
-
-  assert.equal(result.isValid, false);
-  assert.ok(result.errors.positionId);
+  assert.equal(missing.isValid, false);
+  assert.ok(missing.errors.departmentId);
+  assert.ok(missing.errors.positionId);
+  assert.ok(mismatched.errors.positionId);
 });
 
 test('rejects invalid dates and statuses', () => {

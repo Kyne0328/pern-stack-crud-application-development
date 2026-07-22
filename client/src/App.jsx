@@ -1,18 +1,17 @@
-import { useCallback, useEffect, useState } from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {
   createEmployee,
-  deactivateEmployee,
+  deleteEmployee,
   getDepartments,
   getEmployees,
   updateEmployee,
-  updateEmployeeStatus,
 } from './api/employeeApi.js';
 import EmployeeForm from './components/EmployeeForm.jsx';
 import EmployeeTable from './components/EmployeeTable.jsx';
 import Pagination from './components/Pagination.jsx';
-import { EMPLOYEE_STATUS, EMPLOYEE_STATUS_OPTIONS } from './constants/employeeStatus.js';
+import {EMPLOYEE_STATUS_OPTIONS} from './constants/employeeStatus.js';
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 10;
 const initialMeta = {page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 1};
 const initialSummary = {totalEmployees: 0, activeEmployees: 0, inactiveEmployees: 0, departments: 0};
 
@@ -29,7 +28,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [referenceLoading, setReferenceLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [updatingId, setUpdatingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
   const [notice, setNotice] = useState(null);
   const [loadError, setLoadError] = useState(null);
   const [referenceError, setReferenceError] = useState(null);
@@ -130,25 +129,29 @@ export default function App() {
     }
   }
 
-  async function handleStatusChange(employee) {
-    const isActive = employee.status === EMPLOYEE_STATUS.ACTIVE;
-    const action = isActive ? 'deactivate' : 'reactivate';
-    const confirmed = window.confirm(`${action[0].toUpperCase()}${action.slice(1)} ${employee.firstName} ${employee.lastName}?`);
+  async function handleDelete(employee) {
+    const confirmed = window.confirm(
+      `Permanently delete ${employee.firstName} ${employee.lastName}? This cannot be undone.`,
+    );
     if (!confirmed) return;
 
-    setUpdatingId(employee.employeeId);
+    setDeletingId(employee.employeeId);
     setNotice(null);
 
     try {
-      const response = isActive
-        ? await deactivateEmployee(employee.employeeId)
-        : await updateEmployeeStatus(employee.employeeId, EMPLOYEE_STATUS.ACTIVE);
+      const response = await deleteEmployee(employee.employeeId);
       setNotice({type: 'success', message: response.message});
+
+      if (editingEmployee?.employeeId === employee.employeeId) {
+        setEditingEmployee(null);
+        setFormOpen(false);
+      }
+
       requestReload();
     } catch (error) {
       setNotice({type: 'error', message: error.message});
     } finally {
-      setUpdatingId(null);
+      setDeletingId(null);
     }
   }
 
@@ -187,7 +190,7 @@ export default function App() {
           <div>
             <p className="eyebrow">PERN stack CRUD application</p>
             <h1>Employee management</h1>
-            <p>Create, review, update, deactivate, and restore employee records through a normalized PostgreSQL-backed Express API.</p>
+            <p>Create, review, update, and permanently delete employee records through a PostgreSQL-backed Express API.</p>
           </div>
           <button
             className="button button-primary"
@@ -271,9 +274,9 @@ export default function App() {
               <EmployeeTable
                 employees={employees}
                 loading={loading}
-                updatingId={updatingId}
+                deletingId={deletingId}
                 onEdit={openEditForm}
-                onStatusChange={handleStatusChange}
+                onDelete={handleDelete}
               />
               <Pagination meta={meta} loading={loading} onPageChange={setPage} />
             </>

@@ -45,18 +45,15 @@ export function getDepartments() {
   return request('/departments');
 }
 
-export async function getEmployees(filters = {}) {
+export function getEmployees(filters = {}) {
   const params = new URLSearchParams();
   if (filters.search) params.set('search', filters.search);
   if (filters.status !== '' && filters.status !== undefined) params.set('status', String(filters.status));
   if (filters.page) params.set('page', String(filters.page));
   if (filters.pageSize) params.set('pageSize', String(filters.pageSize));
+
   const query = params.toString();
   return request(`/employees${query ? `?${query}` : ''}`);
-}
-
-export function getEmployee(employeeId) {
-  return request(`/employees/${employeeId}`);
 }
 
 export function createEmployee(employee) {
@@ -73,13 +70,6 @@ export function updateEmployee(employeeId, employee) {
   });
 }
 
-export function updateEmployeeStatus(employeeId, status) {
-  return request(`/employees/${employeeId}/status`, {
-    method: 'PATCH',
-    body: JSON.stringify({status}),
-  });
-}
-
-export function deactivateEmployee(employeeId) {
+export function deleteEmployee(employeeId) {
   return request(`/employees/${employeeId}`, {method: 'DELETE'});
 }

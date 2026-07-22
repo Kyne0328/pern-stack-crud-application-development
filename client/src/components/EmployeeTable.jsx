@@ -1,11 +1,15 @@
-import { EMPLOYEE_STATUS, getEmployeeStatus } from '../constants/employeeStatus.js';
+import {getEmployeeStatus} from '../constants/employeeStatus.js';
 
 function formatDate(value) {
   if (!value) return '—';
-  return new Intl.DateTimeFormat('en-PH', {year: 'numeric', month: 'short', day: 'numeric'}).format(new Date(`${String(value).slice(0, 10)}T00:00:00`));
+  return new Intl.DateTimeFormat('en-PH', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(new Date(`${String(value).slice(0, 10)}T00:00:00`));
 }
 
-export default function EmployeeTable({employees, loading, updatingId, onEdit, onStatusChange}) {
+export default function EmployeeTable({employees, loading, deletingId, onEdit, onDelete}) {
   if (loading) {
     return <div className="table-message" role="status">Loading employee records…</div>;
   }
@@ -36,8 +40,7 @@ export default function EmployeeTable({employees, loading, updatingId, onEdit, o
         <tbody>
           {employees.map((employee) => {
             const status = getEmployeeStatus(employee.status);
-            const isActive = employee.status === EMPLOYEE_STATUS.ACTIVE;
-            const isUpdating = updatingId === employee.employeeId;
+            const isDeleting = deletingId === employee.employeeId;
 
             return (
               <tr key={employee.employeeId}>
@@ -51,15 +54,17 @@ export default function EmployeeTable({employees, loading, updatingId, onEdit, o
                 <td><span className={`status status-${status.className}`}>{status.label}</span></td>
                 <td>
                   <div className="row-actions">
-                    <button className="text-button" type="button" onClick={() => onEdit(employee)} disabled={isUpdating}>Edit</button>
+                    <button className="text-button" type="button" onClick={() => onEdit(employee)} disabled={isDeleting}>
+                      Edit
+                    </button>
                     <button
-                      className={`text-button ${isActive ? 'danger' : ''}`}
+                      className="text-button danger"
                       type="button"
-                      onClick={() => onStatusChange(employee)}
-                      disabled={isUpdating}
-                      aria-label={`${isActive ? 'Deactivate' : 'Reactivate'} ${employee.firstName} ${employee.lastName}`}
+                      onClick={() => onDelete(employee)}
+                      disabled={isDeleting}
+                      aria-label={`Delete ${employee.firstName} ${employee.lastName}`}
                     >
-                      {isUpdating ? 'Updating…' : isActive ? 'Deactivate' : 'Reactivate'}
+                      {isDeleting ? 'Deleting…' : 'Delete'}
                     </button>
                   </div>
                 </td>

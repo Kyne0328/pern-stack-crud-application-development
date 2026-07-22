@@ -1,4 +1,4 @@
-import { EMPLOYEE_STATUS_VALUES } from '../constants/employeeStatus.js';
+import {EMPLOYEE_STATUS_VALUES} from '../constants/employeeStatus.js';
 
 const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
@@ -9,10 +9,10 @@ function isValidDate(value) {
   const year = Number(match[1]);
   const month = Number(match[2]);
   const day = Number(match[3]);
-  if (year < 1900) return false;
-
   const date = new Date(Date.UTC(year, month - 1, day));
-  return date.getUTCFullYear() === year
+
+  return year >= 1900
+    && date.getUTCFullYear() === year
     && date.getUTCMonth() === month - 1
     && date.getUTCDate() === day;
 }
@@ -39,34 +39,48 @@ export function normalizeEmployeeInput(values) {
 }
 
 export function validateEmployeeInput(values, departments = []) {
-  const data = normalizeEmployeeInput(values);
+  const normalized = normalizeEmployeeInput(values);
   const errors = {};
 
-  if (!data.employeeNumber) errors.employeeNumber = 'Employee number is required.';
-  else if (data.employeeNumber.length > 30) errors.employeeNumber = 'Use 30 characters or fewer.';
+  if (!normalized.employeeNumber) errors.employeeNumber = 'Employee number is required.';
+  else if (normalized.employeeNumber.length > 30) errors.employeeNumber = 'Use 30 characters or fewer.';
 
-  if (!data.firstName) errors.firstName = 'First name is required.';
-  else if (data.firstName.length > 100) errors.firstName = 'Use 100 characters or fewer.';
+  if (!normalized.firstName) errors.firstName = 'First name is required.';
+  else if (normalized.firstName.length > 100) errors.firstName = 'Use 100 characters or fewer.';
 
-  if (!data.lastName) errors.lastName = 'Last name is required.';
-  else if (data.lastName.length > 100) errors.lastName = 'Use 100 characters or fewer.';
+  if (!normalized.lastName) errors.lastName = 'Last name is required.';
+  else if (normalized.lastName.length > 100) errors.lastName = 'Use 100 characters or fewer.';
 
-  if (!/^[1-9]\d*$/.test(data.departmentId)) errors.departmentId = 'Select a valid department.';
-  if (!/^[1-9]\d*$/.test(data.positionId)) errors.positionId = 'Select a valid position.';
+  if (!/^[1-9]\d*$/.test(normalized.departmentId)) errors.departmentId = 'Select a valid department.';
+  if (!/^[1-9]\d*$/.test(normalized.positionId)) errors.positionId = 'Select a valid position.';
 
-  const selectedDepartment = departments.find((department) => String(department.departmentId) === data.departmentId);
+  const selectedDepartment = departments.find(
+    (department) => String(department.departmentId) === normalized.departmentId,
+  );
+
   if (departments.length > 0 && !selectedDepartment) {
     errors.departmentId = 'Select an available department.';
   }
-  if (selectedDepartment && !selectedDepartment.positions.some((position) => String(position.positionId) === data.positionId)) {
+  if (selectedDepartment && !selectedDepartment.positions.some(
+    (position) => String(position.positionId) === normalized.positionId,
+  )) {
     errors.positionId = 'Select a position from this department.';
   }
 
-  if (!isValidDate(data.joinDate)) errors.joinDate = 'Enter a valid date in YYYY-MM-DD format.';
+  if (!isValidDate(normalized.joinDate)) errors.joinDate = 'Enter a valid date in YYYY-MM-DD format.';
 
-  if (!Number.isInteger(data.status) || !EMPLOYEE_STATUS_VALUES.has(data.status)) {
+  if (!Number.isInteger(normalized.status) || !EMPLOYEE_STATUS_VALUES.has(normalized.status)) {
     errors.status = 'Select a valid status.';
   }
+
+  const data = {
+    employeeNumber: normalized.employeeNumber,
+    firstName: normalized.firstName,
+    lastName: normalized.lastName,
+    positionId: normalized.positionId,
+    status: normalized.status,
+    joinDate: normalized.joinDate,
+  };
 
   return {data, errors, isValid: Object.keys(errors).length === 0};
 }

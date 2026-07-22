@@ -3,7 +3,7 @@ import pg from 'pg';
 const { Pool } = pg;
 
 if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL is required. Create server/.env using server/environment.example.');
+  throw new Error('DATABASE_URL is required. Create server/.env using server/env.example.');
 }
 
 export const pool = new Pool({

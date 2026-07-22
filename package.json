@@ -2,7 +2,7 @@
   "name": "pern-stack-crud-application-development",
   "version": "1.0.0",
   "private": true,
-  "description": "Supervisor-ready employee management CRUD application for the HRIS-DTR internship project.",
+  "description": "employee management CRUD application for the HRIS-DTR internship project.",
   "workspaces": ["client", "server"],
   "scripts": {
     "dev:client": "npm run dev --workspace client",

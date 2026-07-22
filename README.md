@@ -1,7 +1,5 @@
 # PERN Employee Management CRUD
 
-A complete simple PERN stack CRUD application prepared for supervisor review. It manages employee master records and serves as the clean foundation for the later HRIS-DTR system.
-
 ## Application status
 
 The simple CRUD scope is implemented:
@@ -18,8 +16,6 @@ The simple CRUD scope is implemented:
 - Display loading, empty, success, and error states
 - Provide responsive desktop and mobile layouts
 - Test client validation and API controller behavior
-
-The biometric integration, attendance processing, authentication, and DTR reports are intentionally outside this application’s current scope.
 
 ## Technology stack
 
@@ -48,8 +44,7 @@ Employee numbers are normalized to uppercase and enforced as case-insensitively 
 ├── client/                         React application and client tests
 ├── database/                       schema and demonstration seed data
 ├── docs/
-│   ├── employee-api.http           Ready-to-run API requests
-│   └── supervisor-demo.md          Supervisor demonstration sequence
+│   └── employee-api.http           Ready-to-run API requests
 ├── server/                         Express API and server tests
 ├── package.json                    npm workspace scripts
 └── README.md
@@ -87,18 +82,18 @@ The seed file contains ten fictional demonstration records. They are not actual 
 
 ### 3. Configure the API
 
-The repository contains `server/environment.example` because the connector protects `.env` paths.
+The repository contains `server/.env.example` with the required server configuration variables.
 
 Windows Command Prompt:
 
 ```bat
-copy server\environment.example server\.env
+copy server\env.example server\.env
 ```
 
 macOS, Linux, or Git Bash:
 
 ```bash
-cp server/environment.example server/.env
+cp server/env.example server/.env
 ```
 
 Edit `server/.env` and set the correct PostgreSQL username and password:
@@ -152,7 +147,7 @@ Create the React production build:
 npm run build
 ```
 
-Run tests and the production build together before supervisor review:
+Run tests and the production build together:
 
 ```bash
 npm run verify

@@ -16,6 +16,7 @@ A simple PERN CRUD application for managing employees.
 - PostgreSQL
 - Express
 - React with Vite
+- Axios for frontend API requests
 - Node.js using ES modules
 
 ## Database design

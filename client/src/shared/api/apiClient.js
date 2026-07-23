@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const api = axios.create({
+export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 10_000,
   withCredentials: true,
@@ -9,9 +9,9 @@ const api = axios.create({
   },
 });
 
-async function request(config) {
+export async function requestApi(config) {
   try {
-    const response = await api.request(config);
+    const response = await apiClient.request(config);
     return response.data;
   } catch (error) {
     if (!axios.isAxiosError(error)) throw error;
@@ -30,24 +30,4 @@ async function request(config) {
     apiError.details = payload?.errors || {};
     throw apiError;
   }
-}
-
-export function getDepartments() {
-  return request({url: '/departments'});
-}
-
-export function getEmployees() {
-  return request({url: '/employees'});
-}
-
-export function createEmployee(employee) {
-  return request({url: '/employees', method: 'post', data: employee});
-}
-
-export function updateEmployee(employeeId, employee) {
-  return request({url: `/employees/${employeeId}`, method: 'put', data: employee});
-}
-
-export function deleteEmployee(employeeId) {
-  return request({url: `/employees/${employeeId}`, method: 'delete'});
 }

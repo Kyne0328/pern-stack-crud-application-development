@@ -9,7 +9,7 @@ server/   Express and PostgreSQL backend
 
 Each folder can be moved into its own Git repository. Install dependencies and execute each project from inside its own folder. Neither package uses npm scripts.
 
-Both projects use Zod schemas for predictable input validation. The server validates environment variables, request bodies, and route parameters. The client validates login and employee forms before sending API requests.
+Both projects use feature-first architecture and Zod schemas for predictable input validation. The server groups routes, controllers, queries, and validation by backend feature. The client groups API functions, components, validation, and feature-specific constants under `src/features/`.
 
 ## Backend
 

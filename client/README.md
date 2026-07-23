@@ -2,6 +2,37 @@
 
 React and Vite frontend for the employee management application.
 
+## Architecture
+
+The client uses feature-first architecture. Business code is grouped by feature, while application composition and reusable infrastructure remain separate.
+
+```text
+src/
+  app/
+    App.jsx
+  features/
+    auth/
+      api/
+      components/
+      validation/
+      index.js
+    employees/
+      api/
+      components/
+      constants/
+      validation/
+      EmployeeManagementPage.jsx
+      index.js
+  shared/
+    api/
+      apiClient.js
+    styles/
+      global.css
+  main.jsx
+```
+
+Feature folders own their API functions, components, validation, and feature-specific constants. `shared/` contains only infrastructure used by more than one feature.
+
 ## Features
 
 - Login and registration screen

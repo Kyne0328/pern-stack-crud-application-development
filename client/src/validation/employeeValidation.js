@@ -1,3 +1,4 @@
+import * as z from 'zod';
 import {EMPLOYEE_STATUS_VALUES} from '../constants/employeeStatus.js';
 
 const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
@@ -22,11 +23,70 @@ function cleanString(value) {
 }
 
 function normalizeReferenceId(value) {
-  if (typeof value === 'number' && Number.isSafeInteger(value) && value > 0) return String(value);
+  if (typeof value === 'number' && Number.isSafeInteger(value)) return String(value);
   return typeof value === 'string' ? value.trim() : '';
 }
 
-export function normalizeEmployeeInput(values) {
+function positiveIdSchema(errorMessage) {
+  return z.string().regex(/^[1-9]\d*$/, {error: errorMessage});
+}
+
+function createEmployeeFormSchema(departments) {
+  return z.strictObject({
+    firstName: z.string()
+      .min(1, {error: 'First name is required.'})
+      .max(100, {error: 'Use 100 characters or fewer.'}),
+    lastName: z.string()
+      .min(1, {error: 'Last name is required.'})
+      .max(100, {error: 'Use 100 characters or fewer.'}),
+    departmentId: positiveIdSchema('Select a valid department.'),
+    positionId: positiveIdSchema('Select a valid position.'),
+    status: z.number({error: 'Select a valid status.'})
+      .refine(Number.isInteger, {error: 'Select a valid status.'})
+      .refine((value) => EMPLOYEE_STATUS_VALUES.has(value), {error: 'Select a valid status.'}),
+    joinDate: z.string()
+      .min(1, {error: 'Join date is required.'})
+      .refine(isValidDate, {error: 'Enter a valid date in YYYY-MM-DD format.'}),
+  }).superRefine((employee, context) => {
+    if (departments.length === 0) return;
+
+    const selectedDepartment = departments.find(
+      (department) => String(department.departmentId) === employee.departmentId,
+    );
+
+    if (!selectedDepartment) {
+      context.addIssue({
+        code: 'custom',
+        path: ['departmentId'],
+        message: 'Select an available department.',
+      });
+      return;
+    }
+
+    const positionExists = selectedDepartment.positions.some(
+      (position) => String(position.positionId) === employee.positionId,
+    );
+
+    if (!positionExists) {
+      context.addIssue({
+        code: 'custom',
+        path: ['positionId'],
+        message: 'Select a position from this department.',
+      });
+    }
+  });
+}
+
+function formatErrors(issues) {
+  const errors = {};
+  for (const issue of issues) {
+    const field = String(issue.path[0] || 'form');
+    if (!errors[field]) errors[field] = issue.message;
+  }
+  return errors;
+}
+
+export function normalizeEmployeeInput(values = {}) {
   return {
     firstName: cleanString(values.firstName),
     lastName: cleanString(values.lastName),
@@ -39,43 +99,16 @@ export function normalizeEmployeeInput(values) {
 
 export function validateEmployeeInput(values, departments = []) {
   const normalized = normalizeEmployeeInput(values);
-  const errors = {};
+  const result = createEmployeeFormSchema(departments).safeParse(normalized);
 
-  if (!normalized.firstName) errors.firstName = 'First name is required.';
-  else if (normalized.firstName.length > 100) errors.firstName = 'Use 100 characters or fewer.';
-
-  if (!normalized.lastName) errors.lastName = 'Last name is required.';
-  else if (normalized.lastName.length > 100) errors.lastName = 'Use 100 characters or fewer.';
-
-  if (!/^[1-9]\d*$/.test(normalized.departmentId)) errors.departmentId = 'Select a valid department.';
-  if (!/^[1-9]\d*$/.test(normalized.positionId)) errors.positionId = 'Select a valid position.';
-
-  const selectedDepartment = departments.find(
-    (department) => String(department.departmentId) === normalized.departmentId,
-  );
-
-  if (departments.length > 0 && !selectedDepartment) {
-    errors.departmentId = 'Select an available department.';
-  }
-  if (selectedDepartment && !selectedDepartment.positions.some(
-    (position) => String(position.positionId) === normalized.positionId,
-  )) {
-    errors.positionId = 'Select a position from this department.';
+  if (!result.success) {
+    return {
+      data: null,
+      errors: formatErrors(result.error.issues),
+      isValid: false,
+    };
   }
 
-  if (!isValidDate(normalized.joinDate)) errors.joinDate = 'Enter a valid date in YYYY-MM-DD format.';
-
-  if (!Number.isInteger(normalized.status) || !EMPLOYEE_STATUS_VALUES.has(normalized.status)) {
-    errors.status = 'Select a valid status.';
-  }
-
-  const data = {
-    firstName: normalized.firstName,
-    lastName: normalized.lastName,
-    positionId: normalized.positionId,
-    status: normalized.status,
-    joinDate: normalized.joinDate,
-  };
-
-  return {data, errors, isValid: Object.keys(errors).length === 0};
+  const {departmentId, ...data} = result.data;
+  return {data, errors: {}, isValid: true};
 }

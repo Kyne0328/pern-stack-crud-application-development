@@ -3,6 +3,7 @@ import axios from 'axios';
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 10_000,
+  withCredentials: true,
   headers: {
     Accept: 'application/json',
   },
@@ -25,6 +26,7 @@ async function request(config) {
 
     const payload = error.response.data;
     const apiError = new Error(payload?.message || 'The request failed.');
+    apiError.status = error.response.status;
     apiError.details = payload?.errors || {};
     throw apiError;
   }

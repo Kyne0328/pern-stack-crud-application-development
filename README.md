@@ -1,102 +1,24 @@
-# PERN Employee Management CRUD
+# PERN Employee Management
 
-A small employee CRUD application designed to be easy to study and explain.
-
-## Features
-
-- List all employees
-- Create an employee
-- Edit an employee
-- Delete an employee
-- Use an automatically generated employee ID
-- Select a department and position
-- Validate employee form data
-
-## Stack
-
-- PostgreSQL database
-- Express and Node.js backend using CommonJS
-- React frontend using ES modules and Vite
-- Axios for API requests
-
-## Database
+The frontend and backend are independent Node.js projects. They do not use an npm workspace or a root `package.json`.
 
 ```text
-departments
-    department_id
-    department_name
-
-positions
-    position_id
-    department_id → departments.department_id
-    position_name
-
-employees
-    employee_id (generated automatically)
-    first_name
-    last_name
-    position_id → positions.position_id
-    emp_status
-    emp_join_date
+client/   React and Vite frontend
+server/   Express and PostgreSQL backend
 ```
 
-The user does not type an employee ID. PostgreSQL generates `employee_id` when an employee is created. The API returns that ID, and the frontend uses it when editing or deleting the employee.
+Each folder can be moved into its own Git repository. Install dependencies and execute each project from inside its own folder. Neither package uses npm scripts.
 
-## Application flow
+Both projects use Zod schemas for predictable input validation. The server validates environment variables, request bodies, and route parameters. The client validates login and employee forms before sending API requests.
 
-```text
-React component
-  → Axios API function
-  → Express route
-  → validation middleware
-  → controller
-  → PostgreSQL
-  → JSON response
-  → React updates the page
-```
-
-## API
-
-| Method | Endpoint | Purpose |
-| --- | --- | --- |
-| `GET` | `/api/health` | Check the API and database |
-| `GET` | `/api/departments` | Get departments and positions |
-| `GET` | `/api/employees` | Get all employees |
-| `POST` | `/api/employees` | Create an employee and generate an ID |
-| `PUT` | `/api/employees/:employeeId` | Update an employee using the ID |
-| `DELETE` | `/api/employees/:employeeId` | Delete an employee using the ID |
-
-Employee request body:
-
-```json
-{
-  "firstName": "Liza",
-  "lastName": "Cruz",
-  "positionId": "5",
-  "status": 1,
-  "joinDate": "2026-07-21"
-}
-```
-
-The request body does not include `employeeId` because PostgreSQL generates it during creation. For update and delete requests, the ID is placed in the URL.
-
-## Database update
-
-For a new database, run `schema.sql` normally. For an existing database that still has `employee_number`, run:
+## Backend
 
 ```bash
-psql -U postgres -d pern_employee_crud -f database/migrate-remove-employee-number.sql
-```
-
-## Setup
-
-Install dependencies:
-
-```bash
+cd server
 npm install
 ```
 
-Create a new database:
+Create the PostgreSQL database and tables:
 
 ```bash
 psql -U postgres -c "CREATE DATABASE pern_employee_crud;"
@@ -104,29 +26,45 @@ psql -U postgres -d pern_employee_crud -f database/schema.sql
 psql -U postgres -d pern_employee_crud -f database/seed.sql
 ```
 
-Create the server environment file:
-
-```bat
-copy server\env.example server\.env
-```
-
-Start the backend:
+Create `server/.env` from `server/.env.example`, then start the API:
 
 ```bash
-npm run dev:server
+node src/server.js
 ```
 
-Start the frontend in another terminal:
+During development, use Node's watch mode:
 
 ```bash
-npm run dev:client
+node --watch src/server.js
 ```
 
-Open `http://localhost:5173`.
+The backend runs at `http://localhost:5000` by default.
+
+## Frontend
+
+In another terminal:
+
+```bash
+cd client
+npm install
+node node_modules/vite/bin/vite.js
+```
+
+The frontend runs at `http://localhost:5173` and proxies `/api` requests to the backend during development.
 
 ## Validation
 
+Run these commands separately:
+
 ```bash
-npm test
-npm run build
+cd server
+node --test
 ```
+
+```bash
+cd client
+node --test
+node node_modules/vite/bin/vite.js build
+```
+
+See `server/README.md` and `client/README.md` for project-specific instructions.

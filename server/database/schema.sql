@@ -24,4 +24,10 @@ CREATE TABLE IF NOT EXISTS employees (
 CREATE INDEX IF NOT EXISTS employees_name_idx ON employees (last_name, first_name);
 CREATE INDEX IF NOT EXISTS employees_position_idx ON employees (position_id);
 
+CREATE TABLE IF NOT EXISTS users (
+    user_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL
+);
+
 COMMIT;
